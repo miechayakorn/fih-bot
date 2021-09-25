@@ -1,45 +1,72 @@
-import Head from 'next/head'
-import Link from 'next/link'
-import styles from '../styles/Home.module.css'
+import Header from '../components/header'
+import Button from '@material-tailwind/react/Button'
+import Heading3 from '@material-tailwind/react/Heading3'
+import CardDate from '../components/CardDate'
+import { useEffect, useState } from 'react'
 
-export default (result) => {
+export default function Index(result) {
+    const [filterSelect, setFilterSelect] = useState('all')
+    const [data, setData] = useState([])
+
+    const filter = [
+        {
+            title: 'ทั้งปี 2021',
+            value: 'all'
+        },
+        {
+            title: 'ที่กำลังมาถึง',
+            value: 'upcoming'
+        }
+    ]
+
+    const onChangeFilter = (fihData) => {
+        if (filterSelect === 'upcoming') {
+            let dateNow = new Date().toJSON().slice(0, 10)
+            console.log(dateNow)
+            const result = fihData.filter(date => date.Date > dateNow)
+            setData(result)
+        } else {
+            setData(fihData)
+        }
+    }
+
+    useEffect(() => {
+        onChangeFilter(result.data.result.data)
+    }, [filterSelect])
+
     return (
-        <div className={styles.container}>
-            <Head>
-                <title>ตารางวันหยุดของสถาบันการเงิน</title>
-                <meta name="description" content="ตารางวันหยุดของสถาบันการเงินตามธนาคารแห่งประเทศไทย (BOT)"/>
-                <link rel="icon" href="/favicon.ico"/>
-            </Head>
-            <main className={styles.main}>
-                <h1 className={styles.title}>ตารางวันหยุดของสถาบันการเงิน</h1>
-
-                <p className={styles.description}>
-                    กดถัดไปเพื่อเริ่ม <code className={styles.code}>{process.env.clientId}</code>
-                </p>
-
-                <p className={styles.description}>
-                    <Link href="/calendar">
-                        <a>
-                            Go to Calendar
-                        </a>
-                    </Link>
-                </p>
-                <div className={styles.grid}>
-                    {
-                        result.data.result.data.map((data, index) => {
-                            return <>
-                                {index < 5 ?
-                                    <a href="https://nextjs.org/docs" key={index} className={styles.card}>
-                                        {/*{JSON.stringify(data)}*/}
-                                        <h2>{data.DateThai} &rarr;</h2>
-                                        <p>{data.HolidayDescriptionThai}</p>
-                                    </a>
-                                    : null}
-                            </>
-                        })
-                    }
+        <div>
+            <Header/>
+            <section className="header relative items-center flex">
+                <div className="container max-w-7xl mx-auto mb-12 mt-3">
+                    <div className="text-center">
+                        <Heading3>ตารางวันหยุดของสถาบันการเงิน</Heading3>
+                        <div className="flex flex-wrap">{
+                            filter.map((data, index) => {
+                                return <Button onClick={() => setFilterSelect(data.value)} className="ml-2"
+                                               buttonType={data.value === filterSelect ? null : 'outline'}
+                                               color="lightBlue" size="lg" rounded={true} ripple="light" key={index}>
+                                    {data.title}
+                                </Button>
+                            })
+                        }
+                        </div>
+                    </div>
                 </div>
-            </main>
+            </section>
+            <section className="bg-gray-100 pb-20">
+                <div className="container max-w-7xl mx-auto px-4">
+                    <div className="flex flex-wrap">
+                        {
+                            data.map((data, index) => {
+                                return <div className="mt-12 mx-5" key={index}>
+                                    <CardDate data={data} key={index}/>
+                                </div>
+                            })
+                        }
+                    </div>
+                </div>
+            </section>
         </div>
     )
 }
@@ -59,6 +86,6 @@ export async function getServerSideProps() {
     }
 
     return {
-        props: {data}, // will be passed to the page component as props
+        props: {data}, // will be passed to the page components as props
     }
 }
