@@ -2,33 +2,31 @@ import { auth, calendar, calendarId } from '../helper/gCalendar'
 
 const insertEvent = async (jsonFetch) => {
 
-    // Event for Google Index
-    let event = {
-        'summary': `This asdads is the summary.`,
-        'description': `This is the description.`,
-        'transparency': 'transparent',
-        'start': {
-            'date': '2021-09-28',
-            'timeZone': 'Asia/Bangkok'
-        },
-        'end': {
-            'date': '2021-09-28',
-            'timeZone': 'Asia/Bangkok'
+    const initEvent = (data) => {
+        return {
+            'summary': data.HolidayDescriptionThai,
+            'description': ``,
+            'transparency': 'transparent',
+            'start': {
+                'date': data.Date,
+                'timeZone': 'Asia/Bangkok'
+            },
+            'end': {
+                'date': data.Date,
+                'timeZone': 'Asia/Bangkok'
+            }
         }
     }
 
     try {
-        let response = await calendar.events.insert({
-            auth: auth,
-            calendarId: calendarId,
-            resource: event
+        JSON.parse(jsonFetch.result).data.map(async (data) => {
+            await calendar.events.insert({
+                auth: auth,
+                calendarId: calendarId,
+                resource: initEvent(JSON.parse(data))
+            })
         })
-
-        if (response['status'] == 200 && response['statusText'] === 'OK') {
-            return 1
-        } else {
-            return 0
-        }
+        return 1
     } catch (error) {
         console.log(`Error at insertEvent --> ${error}`)
         return 0
