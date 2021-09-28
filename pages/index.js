@@ -72,7 +72,7 @@ export default function Index(result) {
 }
 
 
-export async function getServerSideProps() {
+export const getServerSideProps = async () => {
     const res = await fetch(`http://localhost:3000/api/mock`)
     const data = await res.json()
 
