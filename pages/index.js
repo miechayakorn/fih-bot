@@ -1,7 +1,7 @@
 import Header from '../components/header'
 import Button from '@material-tailwind/react/Button'
 import Heading3 from '@material-tailwind/react/Heading3'
-import CardDate from '../components/CardDate'
+import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
 
 export default function Index(result) {
