@@ -19,7 +19,7 @@ const insertEvent = async (jsonFetch) => {
     }
 
     try {
-        JSON.parse(jsonFetch.result).data.map(async (data) => {
+        jsonFetch.result.data.map(async (data) => {
             await calendar.events.insert({
                 auth: auth,
                 calendarId: calendarId,
