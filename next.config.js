@@ -1,6 +1,3 @@
 module.exports = {
-    reactStrictMode: true,
-    env: {
-        clientId: 'xxx'
-    },
+    reactStrictMode: true
 }

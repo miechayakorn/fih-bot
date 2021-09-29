@@ -1,7 +1,7 @@
 import { auth, calendar, calendarId } from '../helper/gCalendar'
 import getYear from '../helper/getYear'
 
-const getEvents = async () => {
+const getEvent = async () => {
 
     try {
         let response = await calendar.events.list({
@@ -20,4 +20,4 @@ const getEvents = async () => {
     }
 }
 
-export default getEvents
+export default getEvent
