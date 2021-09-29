@@ -1,6 +1,6 @@
 import firebase from 'firebase'
 
-const firebaseConfig = process.env.CREDENTIALS_FIREBASE
+const firebaseConfig = JSON.parse(process.env.CREDENTIALS_FIREBASE)
 
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig)

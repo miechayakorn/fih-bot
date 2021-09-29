@@ -2,6 +2,7 @@ import firebase from '../../../helper/firebase'
 import jsum from 'jsum'
 import insertEvent from '../../../components/insertEvent'
 import clearEvent from '../../../components/clearEvent'
+import getYear from '../../../helper/getYear'
 
 const Index = async (req, res) => {
 
@@ -12,9 +13,13 @@ const Index = async (req, res) => {
         checksumStored = snapshot.val()
     })
 
-    let jsonFetch = await fetch(`http://localhost:3000/api/mock`)
+    let jsonFetch = await fetch(`https://apigw1.bot.or.th/bot/public/financial-institutions-holidays/?year=${getYear()}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-ibm-client-id': process.env.CLIENT_ID
+        },
+    })
     jsonFetch = await jsonFetch.json()
-
 
     const genChecksum = jsum.digest(jsonFetch, 'SHA256', 'hex')
 
