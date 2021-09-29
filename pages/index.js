@@ -3,6 +3,7 @@ import Button from '@material-tailwind/react/Button'
 import Heading3 from '@material-tailwind/react/Heading3'
 import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
+import getYear from '../helper/getYear'
 
 export default function Index(result) {
     const [filterSelect, setFilterSelect] = useState('all')
@@ -44,7 +45,7 @@ export default function Index(result) {
                         <div className="flex flex-wrap">{
                             filter.map((data, index) => {
                                 return <Button onClick={() => setFilterSelect(data.value)} className="ml-2"
-                                               buttonType={data.value === filterSelect ? null : 'outline'}
+                                               buttonType={data.value === filterSelect ? '' : 'outline'}
                                                color="lightBlue" size="lg" rounded={true} ripple="light" key={index}>
                                     {data.title}
                                 </Button>
@@ -73,8 +74,12 @@ export default function Index(result) {
 
 
 export const getServerSideProps = async () => {
-    const res = await fetch(`http://localhost:3000/api/mock`)
-    const data = await res.json()
+    let jsonFetch = await fetch(`https://apigw1.bot.or.th/bot/public/financial-institutions-holidays/?year=${getYear()}`, {
+        headers: {
+            'x-ibm-client-id': process.env.CLIENT_ID
+        },
+    })
+    const data = await jsonFetch.json()
 
     if (!data) {
         return {
