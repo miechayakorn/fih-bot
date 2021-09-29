@@ -26,7 +26,7 @@ const Index = async (req, res) => {
         let resClearEvent = await clearEvent()
         let resInsertEvent = await insertEvent(jsonFetch)
 
-        if (resClearEvent === 1 && resInsertEvent) {
+        if (resClearEvent === 1 && resInsertEvent === 1) {
             await connChecksumStored.set(genChecksum)
             const connJSON = firebase.ref('json')
             await connJSON.set(JSON.stringify(jsonFetch.result.data))
