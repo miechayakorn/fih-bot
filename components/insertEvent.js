@@ -18,19 +18,21 @@ const insertEvent = async (jsonFetch) => {
         }
     }
 
-    try {
-        jsonFetch.result.data.map(async (data) => {
+    let status = 1
+    for (let i = 0; i < jsonFetch.result.data.length; i++) {
+        try {
             await calendar.events.insert({
                 auth: auth,
                 calendarId: calendarId,
-                resource: initEvent(JSON.parse(data))
+                resource: initEvent(JSON.parse(jsonFetch.result.data[i]))
             })
-        })
-        return 1
-    } catch (error) {
-        console.log(`Error at insertEvent --> ${error}`)
-        return 0
+        } catch (error) {
+            status = 0
+            console.log(`Error at insertEvent --> ${error}`)
+            break
+        }
     }
+    return status
 
 }
 
