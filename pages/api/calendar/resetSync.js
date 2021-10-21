@@ -11,7 +11,7 @@ const resetSync = async (req, res) => {
     await clearEvent()
     try {
         dataBOTs.map((event) => {
-            insertEvent(JSON.parse(event))
+            insertEvent(event)
         })
         await storeFirebase('hash', checksum)
         await storeFirebase('data', dataBOTs)
