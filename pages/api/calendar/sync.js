@@ -1,29 +1,47 @@
 import fetchBot from '../../../components/fetch/fetchBot'
 import { fetchFirebase } from '../../../components/fetch/fetchFirebase'
+import insertEvent from '../../../components/insertEvent'
+import getEvent from '../../../components/getEvent'
+import removeEvent from '../../../components/removeEvent'
+import updateEvent from '../../../components/updateEvent'
+import genChecksum from '../../../helper/genChecksum'
 
 const sync = async (req, res) => {
-    const dateNow = new Date().toLocaleDateString('en-CA')
     let dataBOTs = await fetchBot()
-    let dataStores = await fetchFirebase('data')
+    const checksum = genChecksum(dataBOTs)
+    let hashStored = await fetchFirebase('hash')
+    let isDataChanged = (checksum !== hashStored)
 
-    for (let i = 0; i < dataBOTs.length; i++) {
-        if (dateNow <= dataBOTs[i].Date) {
-            validateData(dateNow, dataBOTs[i], dataStores)
+    if (isDataChanged) {
+        const dateNow = new Date().toLocaleDateString('en-CA')
+        let dataStores = await fetchFirebase('data')
+
+        for (let i = 0; i < dataBOTs.length; i++) {
+            if (dateNow <= dataBOTs[i].Date) {
+                validateData(dateNow, dataBOTs[i], dataStores)
+            }
         }
+
+        if (dataStores.length > 0) {
+            // Delete data in each dataStore to GGCalendar
+
+            console.log('DELETE', JSON.stringify(dataStores))
+            dataStores.map(async (delEvent) => {
+                let listEvents = await getEvent()
+                await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
+            })
+        }
+
+        // TODO save new hash
+
+        res.status(201).json(dataStores)  // TODO return status CRUD
+    } else {
+        res.status(200).json({msg: 'nothing to save'})
     }
-
-    if (dataStores.length > 0) {
-        console.log('DELETE', JSON.stringify(dataStores))
-        // Delete data in each dataStore to GGCalendar
-    }
-
-
-    //return status CRUD
-    res.status(200).json(dataStores)
 
 }
 
-const validateData = (dateNow, dataBOT, dataStores) => {
+const validateData = async (dateNow, dataBOT, dataStores) => {
     let isFound = false
     for (let i = 0; i < dataStores.length; i++) {
         if (dateNow <= dataStores[i].Date) {
@@ -31,7 +49,10 @@ const validateData = (dateNow, dataBOT, dataStores) => {
                 isFound = true
                 if (dataStores[i].HolidayDescriptionThai !== dataBOT.HolidayDescriptionThai) {
                     // Update Calendar
+
                     console.log('UPDATE', dataBOT)
+                    let listEvents = await getEvent()
+                    await updateEvent(listEvents.find(event => event.start.date === delEvent.Date).id, dataBOT)
                 }
                 dataStores.splice(i, 1)
                 break
@@ -45,6 +66,7 @@ const validateData = (dateNow, dataBOT, dataStores) => {
     if (isFound === false) {
         // Add Calendar
         console.log('ADD', dataBOT)
+        await insertEvent(dataBOT)
     }
 }
 
