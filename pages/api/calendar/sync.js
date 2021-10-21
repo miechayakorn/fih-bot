@@ -1,5 +1,5 @@
 import fetchBot from '../../../components/fetch/fetchBot'
-import { fetchFirebase } from '../../../components/fetch/fetchFirebase'
+import { fetchFirebase, storeFirebase } from '../../../components/fetch/fetchFirebase'
 import insertEvent from '../../../components/insertEvent'
 import getEvent from '../../../components/getEvent'
 import removeEvent from '../../../components/removeEvent'
@@ -31,8 +31,7 @@ const sync = async (req, res) => {
                 await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
             })
         }
-
-        // TODO save new hash
+        await storeFirebase('hash', checksum)
 
         res.status(201).json(dataStores)  // TODO return status CRUD
     } else {
@@ -52,7 +51,7 @@ const validateData = async (dateNow, dataBOT, dataStores) => {
 
                     console.log('UPDATE', dataBOT)
                     let listEvents = await getEvent()
-                    await updateEvent(listEvents.find(event => event.start.date === delEvent.Date).id, dataBOT)
+                    await updateEvent(listEvents.find(event => event.start.date === dataBOT.Date).id, dataBOT)
                 }
                 dataStores.splice(i, 1)
                 break
