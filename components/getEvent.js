@@ -16,7 +16,6 @@ const getEvent = async () => {
         return items
     } catch (error) {
         console.log(`Error at getEvents --> ${error}`)
-        return 0
     }
 }
 
