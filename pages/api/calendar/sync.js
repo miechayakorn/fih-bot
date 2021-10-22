@@ -25,13 +25,14 @@ const sync = async (req, res) => {
         if (dataStores.length > 0) {
             // Delete data in each dataStore to GGCalendar
 
-            console.log('DELETE', JSON.stringify(dataStores))
+            console.log('DELETE', dataStores)
             dataStores.map(async (delEvent) => {
                 let listEvents = await getEvent()
                 await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
             })
         }
         await storeFirebase('hash', checksum)
+        await storeFirebase('data', dataBOTs)
 
         res.status(201).json(dataStores)  // TODO return status CRUD
     } else {
