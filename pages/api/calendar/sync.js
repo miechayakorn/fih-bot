@@ -22,7 +22,7 @@ const sync = async (req, res) => {
             }
         }
 
-        if (dataStores.length > 0) {
+        if (dataStores && dataStores.length > 0) {
             // Delete data in each dataStore to GGCalendar
 
             console.log('DELETE', dataStores)
@@ -51,10 +51,12 @@ const validateData = async (dateNow, dataBOT, dataStores) => {
                     // Update Calendar
 
                     console.log('UPDATE', dataBOT)
+                    dataStores.splice(i, 1)
                     let listEvents = await getEvent()
                     await updateEvent(listEvents.find(event => event.start.date === dataBOT.Date).id, dataBOT)
+                } else {
+                    dataStores.splice(i, 1)
                 }
-                dataStores.splice(i, 1)
                 break
             }
         } else {
