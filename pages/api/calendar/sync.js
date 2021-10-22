@@ -13,19 +13,24 @@ const sync = async (req, res) => {
     let isDataChanged = (checksum !== hashStored)
 
     if (isDataChanged) {
+        let responseData = {
+            ADD: [],
+            UPDATE: [],
+            DELETE: []
+        }
         const dateNow = new Date().toLocaleDateString('en-CA')
         let dataStores = await fetchFirebase('data')
 
         for (let i = 0; i < dataBOTs.length; i++) {
             if (dateNow <= dataBOTs[i].Date) {
-                validateData(dateNow, dataBOTs[i], dataStores)
+                validateData(dateNow, dataBOTs[i], dataStores, responseData)
             }
         }
 
         if (dataStores && dataStores.length > 0) {
-            // Delete data in each dataStore to GGCalendar
-
+            // Delete Event
             console.log('DELETE', dataStores)
+            responseData.DELETE.push(dataStores)
             dataStores.map(async (delEvent) => {
                 let listEvents = await getEvent()
                 await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
@@ -34,23 +39,23 @@ const sync = async (req, res) => {
         await storeFirebase('hash', checksum)
         await storeFirebase('data', dataBOTs)
 
-        res.status(201).json(dataStores)  // TODO return status CRUD
+        res.status(201).json(responseData)
     } else {
         res.status(200).json({msg: 'nothing to save'})
     }
 
 }
 
-const validateData = async (dateNow, dataBOT, dataStores) => {
+const validateData = async (dateNow, dataBOT, dataStores, responseData) => {
     let isFound = false
     for (let i = 0; i < dataStores.length; i++) {
         if (dateNow <= dataStores[i].Date) {
             if (dataStores[i].Date === dataBOT.Date) {
                 isFound = true
                 if (dataStores[i].HolidayDescriptionThai !== dataBOT.HolidayDescriptionThai) {
-                    // Update Calendar
-
+                    // Update Event
                     console.log('UPDATE', dataBOT)
+                    responseData.UPDATE.push(dataBOT)
                     dataStores.splice(i, 1)
                     let listEvents = await getEvent()
                     await updateEvent(listEvents.find(event => event.start.date === dataBOT.Date).id, dataBOT)
@@ -66,8 +71,9 @@ const validateData = async (dateNow, dataBOT, dataStores) => {
     }
 
     if (isFound === false) {
-        // Add Calendar
+        // Add Event
         console.log('ADD', dataBOT)
+        responseData.ADD.push(dataBOT)
         await insertEvent(dataBOT)
     }
 }
