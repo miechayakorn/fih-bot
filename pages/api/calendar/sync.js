@@ -21,27 +21,31 @@ const sync = async (req, res) => {
         const dateNow = new Date().toLocaleDateString('en-CA')
         let dataStores = await fetchFirebase('data')
 
-        for (let i = 0; i < dataBOTs.length; i++) {
-            if (dateNow <= dataBOTs[i].Date) {
-                validateData(dateNow, dataBOTs[i], dataStores, responseData)
+        if (dataStores) {
+            for (let i = 0; i < dataBOTs.length; i++) {
+                if (dateNow <= dataBOTs[i].Date) {
+                    validateData(dateNow, dataBOTs[i], dataStores, responseData)
+                }
             }
-        }
 
-        if (dataStores && dataStores.length > 0) {
-            // Delete Event
-            console.log('DELETE', dataStores)
-            responseData.DELETE.push(dataStores)
-            dataStores.map(async (delEvent) => {
-                let listEvents = await getEvent()
-                await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
-            })
-        }
-        await storeFirebase('hash', checksum)
-        await storeFirebase('data', dataBOTs)
+            if (dataStores.length > 0) {
+                // Delete Event
+                console.log('DELETE', dataStores)
+                responseData.DELETE.push(dataStores)
+                dataStores.map(async (delEvent) => {
+                    let listEvents = await getEvent()
+                    await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
+                })
+            }
+            await storeFirebase('hash', checksum)
+            await storeFirebase('data', dataBOTs)
 
-        res.status(201).json(responseData)
+            res.status(201).json(responseData)
+        } else {
+            res.status(202).json({msg: 'nothing to do :P'})
+        }
     } else {
-        res.status(200).json({msg: 'nothing to save'})
+        res.status(200).json({msg: 'nothing to save :D'})
     }
 
 }
