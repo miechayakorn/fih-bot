@@ -12,7 +12,7 @@ const sync = async (req, res) => {
     let hashStored = await fetchFirebase('hash')
     let isDataChanged = (checksum !== hashStored)
 
-    if (isDataChanged) {
+    if (dataBOTs && isDataChanged) {
         let responseData = {
             ADD: [],
             UPDATE: [],
