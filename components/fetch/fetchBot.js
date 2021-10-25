@@ -11,7 +11,7 @@ const fetchBot = async () => {
         })
         return data.result.data
     } catch (e) {
-
+        console.error(e)
     }
 }
 
