@@ -5,6 +5,7 @@ import getEvent from '../../../components/getEvent'
 import removeEvent from '../../../components/removeEvent'
 import updateEvent from '../../../components/updateEvent'
 import genChecksum from '../../../helper/genChecksum'
+import { sendNotificationToLine } from '../../../components/fetch/ifttt'
 
 const sync = async (req, res) => {
     let dataBOTs = await fetchBot()
@@ -23,6 +24,7 @@ const sync = async (req, res) => {
 
         if (dataStores) {
             for (let i = 0; i < dataBOTs.length; i++) {
+                // filter future date
                 if (dateNow <= dataBOTs[i].Date) {
                     validateData(dateNow, dataBOTs[i], dataStores, responseData)
                 }
@@ -39,6 +41,7 @@ const sync = async (req, res) => {
             }
             await storeFirebase('hash', checksum)
             await storeFirebase('data', dataBOTs)
+            await sendNotificationToLine(responseData)
 
             res.status(201).json(responseData)
         } else {
@@ -53,6 +56,7 @@ const sync = async (req, res) => {
 const validateData = async (dateNow, dataBOT, dataStores, responseData) => {
     let isFound = false
     for (let i = 0; i < dataStores.length; i++) {
+        // future date in dataStore
         if (dateNow <= dataStores[i].Date) {
             if (dataStores[i].Date === dataBOT.Date) {
                 isFound = true
