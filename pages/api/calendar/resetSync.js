@@ -3,6 +3,7 @@ import fetchBot from '../../../components/fetch/fetchBot'
 import { storeFirebase } from '../../../components/fetch/fetchFirebase'
 import clearEvent from '../../../components/clearEvent'
 import genChecksum from '../../../helper/genChecksum'
+import getYear from '../../../helper/getYear'
 
 const resetSync = async (req, res) => {
     const dataBOTs = await fetchBot()
@@ -13,8 +14,10 @@ const resetSync = async (req, res) => {
         dataBOTs.map((event) => {
             insertEvent(event)
         })
-        await storeFirebase('hash', checksum)
-        await storeFirebase('data', dataBOTs)
+        await storeFirebase(`mainStorage/${getYear()}`, {
+            hash: checksum,
+            data: dataBOTs
+        })
         res.status(201).json({msg: 'created : ' + checksum})
     } catch (e) {
         console.log(e)
