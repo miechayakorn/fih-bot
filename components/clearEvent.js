@@ -1,8 +1,8 @@
 import { auth, calendar, calendarId } from '../helper/gCalendar'
 import getEvent from './getEvent'
 
-const clearEvent = async () => {
-    let clearData = await getEvent()
+const clearEvent = async (year) => {
+    let clearData = await getEvent(year)
     for (const data of clearData) {
         try {
             let response = await calendar.events.delete({

@@ -1,14 +1,12 @@
 import { auth, calendar, calendarId } from '../helper/gCalendar'
-import getYear from '../helper/getYear'
 
-const getEvent = async () => {
-
+const getEvent = async (localYear) => {
     try {
         let response = await calendar.events.list({
             auth: auth,
             calendarId: calendarId,
-            timeMin: `${getYear() - 1}-01-01T14:33:00.000Z`,
-            timeMax: `${getYear()}-12-31T14:33:59.000Z`,
+            timeMin: `${localYear - 1}-01-01T14:33:00.000Z`,
+            timeMax: `${localYear}-12-31T14:33:59.000Z`,
             timeZone: 'Asia/Bangkok',
         })
 

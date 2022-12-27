@@ -3,7 +3,7 @@ import Button from '@material-tailwind/react/Button'
 import Heading3 from '@material-tailwind/react/Heading3'
 import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
-import getYear from '../helper/getYear'
+import { getYear } from '../helper/date'
 
 export default function Index(result) {
     const [filterSelect, setFilterSelect] = useState('all')
