@@ -5,6 +5,7 @@ const clearEvent = async (year) => {
     let clearData = await getEvent(year)
     for (const data of clearData) {
         try {
+            console.log("clearEvent = ", data.start.date)
             let response = await calendar.events.delete({
                 auth: auth,
                 calendarId: calendarId,

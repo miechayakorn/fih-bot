@@ -5,7 +5,7 @@ const getEvent = async (localYear) => {
         let response = await calendar.events.list({
             auth: auth,
             calendarId: calendarId,
-            timeMin: `${localYear - 1}-01-01T14:33:00.000Z`,
+            timeMin: `${localYear - 1}-12-31T14:33:00.000Z`,
             timeMax: `${localYear}-12-31T14:33:59.000Z`,
             timeZone: 'Asia/Bangkok',
         })
