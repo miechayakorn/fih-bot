@@ -1,5 +1,6 @@
 export const getYear = () => {
     let toDate = new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'})
+    console.log(toDate)
     return new Date(toDate).getFullYear()
 }
 

@@ -1,7 +1,7 @@
-import insertEvent from '../../../components/insertEvent'
+import insertEvent from '../../../components/calendar/insertEvent'
 import fetchBot from '../../../components/fetch/fetchBot'
 import { storeFirebase } from '../../../components/fetch/fetchFirebase'
-import clearEvent from '../../../components/clearEvent'
+import clearEvent from '../../../components/calendar/clearEvent'
 import genChecksum from '../../../helper/genChecksum'
 import { getYear } from '../../../helper/date'
 
@@ -13,7 +13,7 @@ const resetSync = async (req, res) => {
         await clearEvent(year)
         try {
             dataBOTs.map((event) => {
-                console.log("insert = ", event.Date)
+                console.log('insert = ', event.Date)
                 insertEvent(event)
             })
             await storeFirebase(`mainStorage/${getYear()}`, {

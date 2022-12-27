@@ -1,5 +1,5 @@
-import { auth, calendar, calendarId } from '../helper/gCalendar'
-import initEvent from '../helper/initEvent'
+import { auth, calendar, calendarId } from '../../helper/gCalendar'
+import initEvent from '../../helper/initEvent'
 
 const insertEvent = async (dateObject) => {
     try {

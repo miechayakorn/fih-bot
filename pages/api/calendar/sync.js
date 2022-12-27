@@ -1,43 +1,40 @@
 import { fetchFirebase, storeFirebase } from '../../../components/fetch/fetchFirebase'
-import insertEvent from '../../../components/insertEvent'
-import getEvent from '../../../components/getEvent'
-import removeEvent from '../../../components/removeEvent'
-import updateEvent from '../../../components/updateEvent'
+import insertEvent from '../../../components/calendar/insertEvent'
+import getEvent from '../../../components/calendar/getEvent'
+import removeEvent from '../../../components/calendar/removeEvent'
+import updateEvent from '../../../components/calendar/updateEvent'
 import genChecksum from '../../../helper/genChecksum'
 import { getMonth, getYear } from '../../../helper/date'
 import fetchBot from '../../../components/fetch/fetchBot'
 import { sendNotificationToLine } from '../../../components/fetch/ifttt'
 
 const sync = async (req, res) => {
+    console.log('------------------------- start :D -------------------------')
     let dataResponse = {}
     const year = getYear()
-
+    // check month more than 8 to fetch newYear if BOT has
     if (getMonth() >= 8) {
-        let calendarNextYear = await fetchBot(year + 1)
-        if (calendarNextYear) {
-            const dateNow = genTargetDate(year + 1, true)
-            const nextYearRes = await syncCalendar(res, year + 1, dateNow)
-            console.log('========nextYearResponse==>', nextYearRes)
-            if (nextYearRes !== 200 && nextYearRes) {
-                dataResponse = {
-                    [year + 1]: nextYearRes,
-                    ...dataResponse
-                }
+        const dateNow = genTargetDate(year + 1, true)
+        const nextYearRes = await syncCalendar(res, year + 1, dateNow)
+        console.log('========nextYearResponse==>', nextYearRes)
+        if (nextYearRes && nextYearRes !== 200) {
+            dataResponse = {
+                [year + 1]: nextYearRes,
+                ...dataResponse
             }
         }
     }
-    console.log('==============================================================================================')
     const dateNow = genTargetDate(year)
     const response = await syncCalendar(res, year, dateNow)
     if (response === 200) {
-        console.log('========response==>', response)
+        console.log('========response==>', response, '\n--- end ---\n')
         res.status(200).json({msg: 'nothing to save :D'})
     } else if (response) {
         dataResponse = {
             [year]: response,
             ...dataResponse
         }
-        console.log('========response==>', response)
+        console.log('========response==>', response, '\n--- end ---\n')
         await sendNotificationToLine(response)
         res.status(201).json(dataResponse)
     }
@@ -48,6 +45,9 @@ const syncCalendar = async (res, localYear, dateNow) => {
     const thisYearDataPath = `mainStorage/${localYear}/data`
 
     let dataBOTs = await fetchBot(localYear)
+    if (!dataBOTs) {
+        return 200
+    }
     const checksum = genChecksum(dataBOTs)
     let hashStored = await fetchFirebase(thisYearHashPath)
     let isDataChanged = (checksum !== hashStored)
@@ -120,7 +120,6 @@ const validateData = async (dateNow, dataBOT, dataStores, responseData, localYea
         await insertEvent(dataBOT)
     }
 }
-
 
 const genTargetDate = (year, isNextYear = false) => {
     let dateNow

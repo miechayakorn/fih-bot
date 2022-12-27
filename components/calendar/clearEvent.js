@@ -1,4 +1,4 @@
-import { auth, calendar, calendarId } from '../helper/gCalendar'
+import { auth, calendar, calendarId } from '../../helper/gCalendar'
 import getEvent from './getEvent'
 
 const clearEvent = async (year) => {

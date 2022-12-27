@@ -1,5 +1,5 @@
-import clearEvent from '../../../components/clearEvent'
-import getEvent from '../../../components/getEvent'
+import clearEvent from '../../../components/calendar/clearEvent'
+import getEvent from '../../../components/calendar/getEvent'
 
 const Index = async (req, res) => {
 
