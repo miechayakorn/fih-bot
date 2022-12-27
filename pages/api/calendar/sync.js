@@ -26,15 +26,16 @@ const sync = async (req, res) => {
     }
     const dateNow = genTargetDate(year)
     const response = await syncCalendar(res, year, dateNow)
+
     if (response === 200) {
-        console.log('========response==>', response, '\n--- end ---\n')
+        console.log('========response==>', response)
         res.status(200).json({msg: 'nothing to save :D'})
     } else if (response) {
         dataResponse = {
             [year]: response,
             ...dataResponse
         }
-        console.log('========response==>', response, '\n--- end ---\n')
+        console.log('========response==>', response)
         await sendNotificationToLine(response)
         res.status(201).json(dataResponse)
     }
