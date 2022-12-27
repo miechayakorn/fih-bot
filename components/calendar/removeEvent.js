@@ -1,4 +1,4 @@
-import { auth, calendar, calendarId } from '../helper/gCalendar'
+import { auth, calendar, calendarId } from '../../helper/gCalendar'
 
 const removeEvent = async (eventID) => {
     try {
