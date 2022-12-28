@@ -1,17 +1,16 @@
-import Header from '../components/header'
-import Button from '@material-tailwind/react/Button'
-import Heading3 from '@material-tailwind/react/Heading3'
+import { Button, Container, Grid, Text } from '@nextui-org/react'
 import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
-import { getYear } from '../helper/date'
+import { fetchFirebase } from '../components/fetch/fetchFirebase'
 
 export default function Index(result) {
     const [filterSelect, setFilterSelect] = useState('all')
     const [data, setData] = useState([])
 
+
     const filter = [
         {
-            title: 'ทั้งปี 2021',
+            title: 'ทั้งปี ' + getYear(),
             value: 'all'
         },
         {
@@ -32,65 +31,58 @@ export default function Index(result) {
     }
 
     useEffect(() => {
-        onChangeFilter(result.data.result.data)
+        onChangeFilter(result?.dataStores)
     }, [filterSelect])
 
     return (
-        <div>
-            <Header/>
-            <section className="header relative items-center flex">
-                <div className="container max-w-7xl mx-auto mb-12 mt-3">
-                    <div className="text-center">
-                        <Heading3>ตารางวันหยุดของสถาบันการเงิน</Heading3>
-                        <div className="flex flex-wrap">{
-                            filter.map((data, index) => {
-                                return <Button onClick={() => setFilterSelect(data.value)} className="ml-2"
-                                               buttonType={data.value === filterSelect ? '' : 'outline'}
-                                               color="lightBlue" size="lg" rounded={true} ripple="light" key={index}>
-                                    {data.title}
-                                </Button>
-                            })
-                        }
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <Container md>
+            <Text
+                h1
+                size={60}
+                css={{
+                    textGradient: '45deg, $blue600 -20%, $pink600 50%',
+                }}
+                weight="bold"
+            >
+                ตารางวันหยุดของสถาบันการเงิน
+            </Text>
+            <Grid.Container gap={2}>
+                {filter.map((data, index) => {
+                    return <Grid key={index}>
+                        <Button onClick={() => setFilterSelect(data.value)}
+                                flat={data.value === filterSelect ? false : true}
+                                rounded={true} key={index}>
+                            {data.title}
+                        </Button>
+                    </Grid>
+                })
+                }
+            </Grid.Container>
             <section className="bg-gray-100 pb-20">
                 <div className="container max-w-7xl mx-auto px-4">
-                    <div className="flex flex-wrap">
+                    <Grid.Container gap={2}>
                         {
                             data.map((data, index) => {
-                                return <div className="mt-12 mx-5" key={index}>
+                                return <Grid xs={12} sm={6} md={4} key={index}>
                                     <CardDate data={data} key={index}/>
-                                </div>
+                                </Grid>
                             })
                         }
-                    </div>
+                    </Grid.Container>
                 </div>
             </section>
-        </div>
+        </Container>
     )
 }
 
+const getYear = () => {
+    let toDate = new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'})
+    return new Date(toDate).getFullYear()
+}
 
 export const getServerSideProps = async () => {
-    let jsonFetch = await fetch(`https://apigw1.bot.or.th/bot/public/financial-institutions-holidays/?year=${getYear()}`, {
-        headers: {
-            'x-ibm-client-id': process.env.CLIENT_ID
-        },
-    })
-    const data = await jsonFetch.json()
-
-    if (!data) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: false,
-            },
-        }
-    }
-
+    let dataStores = await fetchFirebase(`mainStorage/${getYear()}/data`)
     return {
-        props: {data}, // will be passed to the page components as props
+        props: {dataStores}, // will be passed to the page components as props
     }
 }

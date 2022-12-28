@@ -1,23 +1,40 @@
 import React from 'react'
-import Card from '@material-tailwind/react/Card'
-import CardRow from '@material-tailwind/react/CardRow'
-import CardHeader from '@material-tailwind/react/CardHeader'
-import CardStatus from '@material-tailwind/react/CardStatus'
-import CardStatusFooter from '@material-tailwind/react/CardStatusFooter'
-import Icon from '@material-tailwind/react/Icon'
+import { Avatar, Card, Grid, Text } from '@nextui-org/react'
 
 const CardDate = ({data}) => {
     return (
-        <Card>
-            <CardRow>
-                <CardHeader color="lightBlue" size="lg" iconOnly>
-                    <Icon name="date_range" size="5xl" color="white"/>
-                </CardHeader>
-                <CardStatus title={data.DateThai} amount={data.HolidayDescriptionThai}/>
-            </CardRow>
-            <CardStatusFooter color="green" amount="" date={data.HolidayDescription}>
-                <Icon color="green" name="public"/>
-            </CardStatusFooter>
+        <Card css={{p: '$6'}}>
+            <Card.Header>
+                <Avatar
+                    text={data.HolidayDescriptionThai}
+                    color="primary"
+                    textColor="white"/>
+                <Grid.Container css={{pl: '$6'}}>
+                    <Grid xs={12}>
+                        <Text h4 css={{lineHeight: '$xs'}}>
+                            {data.HolidayDescriptionThai}
+                        </Text>
+                    </Grid>
+                    <Grid xs={12}>
+                        <Text css={{color: '$accents8'}}>{data.DateThai}</Text>
+                    </Grid>
+                </Grid.Container>
+            </Card.Header>
+            <Card.Body css={{py: '$2'}}>
+                <Text>
+                    {data.HolidayDescription}
+                </Text>
+            </Card.Body>
+            {/*<Card.Footer>*/}
+            {/*    <Link*/}
+            {/*        icon*/}
+            {/*        color="primary"*/}
+            {/*        target="_blank"*/}
+            {/*        href="https://github.com/nextui-org/nextui"*/}
+            {/*    >*/}
+            {/*        Visit source code on GitHub.*/}
+            {/*    </Link>*/}
+            {/*</Card.Footer>*/}
         </Card>
     )
 }
