@@ -1,12 +1,17 @@
-import { Button, Container, Grid, Text } from '@nextui-org/react'
+import { Button, Container, Grid, Switch, Text, useTheme } from '@nextui-org/react'
+import { useTheme as useNextTheme } from 'next-themes'
 import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
 import { fetchFirebase } from '../components/fetch/fetchFirebase'
+import { SunIcon } from '../components/icon/SunIcon'
+import { MoonIcon } from '../components/icon/MoonIcon'
+import DisplayCalendarModal from '../components/DisplayCalendarModal'
 
 export default function Index(result) {
     const [filterSelect, setFilterSelect] = useState('all')
     const [data, setData] = useState([])
-
+    const {setTheme} = useNextTheme()
+    const {isDark, type} = useTheme()
 
     const filter = [
         {
@@ -36,17 +41,55 @@ export default function Index(result) {
 
     return (
         <Container md>
-            <Text
-                h1
-                size={60}
-                css={{
-                    textGradient: '45deg, $blue600 -20%, $pink600 50%',
-                }}
-                weight="bold"
-            >
-                ตารางวันหยุดของสถาบันการเงิน
-            </Text>
-            <Grid.Container gap={2}>
+            <Grid css={{position: 'fixed', bottom: '10px', right: '30px', zIndex: 1}}>
+                <Switch
+                    checked={isDark}
+                    size="xl"
+                    onChange={(e) => setTheme(e.target.checked ? 'dark' : 'light')}
+                    iconOn={<SunIcon filled/>}
+                    iconOff={<MoonIcon filled/>}
+                />
+            </Grid>
+            <Grid.Container gap={1} css={{mt: 20}} justify="center">
+                <Text
+                    h1
+                    size={60}
+                    hideIn="xs"
+                    css={{
+                        textGradient: '45deg, $blue600 -20%, $pink600 50%',
+                    }}
+                    weight="bold"
+                >
+                    ตารางวันหยุดของสถาบันการเงิน
+                </Text>
+                <Text
+                    h2
+                    showIn="xs"
+                    css={{
+                        alignSelf: 'center',
+                        textGradient: '45deg, $blue600 -20%, $pink600 50%',
+                    }}
+                    weight="bold"
+                >
+                    ตารางวันหยุด
+                </Text>
+                <br/>
+                <Text
+                    h2
+                    showIn="xs"
+                    css={{
+                        alignSelf: 'center',
+                        textGradient: '45deg, $blue600 -20%, $pink600 50%',
+                    }}
+                    weight="bold"
+                >
+                    ของสถาบันการเงิน
+                </Text>
+            </Grid.Container>
+            <Grid.Container justify="center">
+                <DisplayCalendarModal/>
+            </Grid.Container>
+            <Grid.Container gap={1}>
                 {filter.map((data, index) => {
                     return <Grid key={index}>
                         <Button onClick={() => setFilterSelect(data.value)}
@@ -58,19 +101,15 @@ export default function Index(result) {
                 })
                 }
             </Grid.Container>
-            <section className="bg-gray-100 pb-20">
-                <div className="container max-w-7xl mx-auto px-4">
-                    <Grid.Container gap={2}>
-                        {
-                            data.map((data, index) => {
-                                return <Grid xs={12} sm={6} md={4} key={index}>
-                                    <CardDate data={data} key={index}/>
-                                </Grid>
-                            })
-                        }
-                    </Grid.Container>
-                </div>
-            </section>
+            <Grid.Container gap={2} css={{mb: 50}}>
+                {
+                    data.map((data, index) => {
+                        return <Grid xs={12} sm={6} md={4} key={index}>
+                            <CardDate data={data} key={index}/>
+                        </Grid>
+                    })
+                }
+            </Grid.Container>
         </Container>
     )
 }
