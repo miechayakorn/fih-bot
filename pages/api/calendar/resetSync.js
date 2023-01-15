@@ -5,6 +5,11 @@ import clearEvent from '../../../components/calendar/clearEvent'
 import genChecksum from '../../../helper/genChecksum'
 import { getYear } from '../../../helper/date'
 
+const sleep = (ms) => {
+    console.log('sleep = ', ms, ' ms')
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 const resetSync = async (req, res) => {
     const {year} = req.query
     if (year) {
@@ -12,10 +17,12 @@ const resetSync = async (req, res) => {
         const checksum = genChecksum(dataBOTs)
         await clearEvent(year)
         try {
-            dataBOTs.map((event) => {
+            for (let i = 0; i < dataBOTs.length; i++) {
+                const event = dataBOTs[i]
                 console.log('insert = ', event.Date)
-                insertEvent(event)
-            })
+                await insertEvent(event)
+                await sleep(2 * 1000)
+            }
             await storeFirebase(`mainStorage/${getYear()}`, {
                 hash: checksum,
                 data: dataBOTs

@@ -9,7 +9,7 @@ const insertEvent = async (dateObject) => {
             resource: initEvent(dateObject)
         })
     } catch (error) {
-        console.log(`Error at insertEvent --> ${error}`)
+        console.log(`${dateObject.Date} Error at insertEvent --> ${error}`)
     }
 }
 
