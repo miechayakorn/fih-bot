@@ -23,7 +23,7 @@ const resetSync = async (req, res) => {
                 await insertEvent(event)
                 await sleep(2 * 1000)
             }
-            await storeFirebase(`mainStorage/${getYear()}`, {
+            await storeFirebase(`mainStorage/${year}`, {
                 hash: checksum,
                 data: dataBOTs
             })
