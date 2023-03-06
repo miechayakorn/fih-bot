@@ -14,8 +14,7 @@ const sync = async (req, res) => {
     const year = getYear()
     // check month more than 8 to fetch newYear if BOT has
     if (getMonth() >= 8) {
-        const dateNow = genTargetDate(year + 1, true)
-        const nextYearRes = await syncCalendar(res, year + 1, dateNow)
+        const nextYearRes = await syncCalendar(res, year + 1)
         console.log('========nextYearResponse==>', nextYearRes)
         if (nextYearRes && nextYearRes !== 200) {
             dataResponse = {
@@ -24,8 +23,7 @@ const sync = async (req, res) => {
             }
         }
     }
-    const dateNow = genTargetDate(year)
-    const response = await syncCalendar(res, year, dateNow)
+    const response = await syncCalendar(res, year)
 
     if (response === 200) {
         console.log('========response==>', response)
@@ -41,7 +39,7 @@ const sync = async (req, res) => {
     }
 }
 
-const syncCalendar = async (res, localYear, dateNow) => {
+const syncCalendar = async (res, localYear) => {
     const thisYearHashPath = `mainStorage/${localYear}/hash`
     const thisYearDataPath = `mainStorage/${localYear}/data`
 
@@ -54,30 +52,9 @@ const syncCalendar = async (res, localYear, dateNow) => {
     let isDataChanged = (checksum !== hashStored)
 
     if (dataBOTs && isDataChanged) {
-
-        let responseData = {
-            ADD: [],
-            UPDATE: [],
-            DELETE: []
-        }
-        let dataStores = await fetchFirebase(thisYearDataPath)
-        for (let i = 0; i < dataBOTs.length; i++) {
-            // filter future date
-            if (dateNow <= dataBOTs[i].Date) {
-                await validateData(dateNow, dataBOTs[i], dataStores, responseData, localYear)
-            }
-        }
-
-        if (dataStores && dataStores.length > 0) {
-            // Delete Event
-            dataStores.map(async (delEvent) => {
-                if (dateNow <= delEvent.Date) {
-                    responseData.DELETE = [...responseData.DELETE, delEvent]
-                    let listEvents = await getEvent(localYear)
-                    await removeEvent(listEvents.find(event => event.start.date === delEvent.Date).id)
-                }
-            })
-        }
+        let dataFB = await fetchFirebase(thisYearDataPath)
+        let dataCalendar = await getEvent(localYear)
+        const responseData = compareJSONArrays(dataBOTs, dataFB, dataCalendar)
         await storeFirebase(`mainStorage/${localYear}`, {
             hash: checksum,
             data: dataBOTs
@@ -88,49 +65,47 @@ const syncCalendar = async (res, localYear, dateNow) => {
     }
 }
 
-const validateData = async (dateNow, dataBOT, dataStores, responseData, localYear) => {
-    let isFound = false
-    if (dataStores) {
-        for (let i = 0; i < dataStores.length; i++) {
-            // future date in dataStore
-            if (dateNow <= dataStores[i].Date) {
-                if (dataStores[i].Date === dataBOT.Date) {
-                    isFound = true
-                    if (dataStores[i].HolidayDescriptionThai !== dataBOT.HolidayDescriptionThai) {
-                        // Update Event
-                        console.log('UPDATE', dataBOT)
-                        responseData.UPDATE.push(dataBOT)
-                        dataStores.splice(i, 1)
-                        let listEvents = await getEvent(localYear)
-                        await updateEvent(listEvents.find(event => event.start.date === dataBOT.Date).id, dataBOT)
-                    } else {
-                        dataStores.splice(i, 1)
-                    }
-                    break
-                }
-            } else {
-                dataStores.splice(i, 1)
-                i--
+const compareJSONArrays = async (dataBOTs, dataFB, dataCalendar) => {
+    const responseData = {
+        ADD: [],
+        UPDATE: [],
+        DELETE: [],
+    }
+
+    for (let i = 0; i < dataBOTs.length; i++) {
+        const obj1 = dataBOTs[i]
+        const obj2 = dataFB?.find((o) => o.Date === obj1.Date)
+
+        if (obj2) {
+            if (!isEqual(obj1, obj2)) {
+                const eventId = dataCalendar.find(event => event.start.date === obj1.Date).id
+                await updateEvent(eventId, obj1)
+                responseData.UPDATE.push(obj1)
+            }
+        } else {
+            await insertEvent(obj1)
+            responseData.ADD.push(obj1)
+        }
+    }
+
+    if (dataFB) {
+        for (let i = 0; i < dataFB.length; i++) {
+            const obj2 = dataFB[i]
+            const obj1 = dataBOTs.find((o) => o.Date === obj2.Date)
+
+            if (!obj1) {
+                const eventId = dataCalendar.find(event => event.start.date === obj2.Date).id
+                await removeEvent(eventId, obj2.Date)
+                responseData.DELETE.push(obj2)
             }
         }
     }
-    if (isFound === false) {
-        // Add Event
-        console.log('ADD', dataBOT)
-        responseData.ADD.push(dataBOT)
-        await insertEvent(dataBOT)
-    }
+
+    return responseData
 }
 
-const genTargetDate = (year, isNextYear = false) => {
-    let dateNow
-    if (isNextYear) {
-        dateNow = new Date(year, 0, 1).toLocaleDateString('en-CA', {timeZone: 'Asia/Bangkok'})
-    } else {
-        const currentDate = new Date()
-        dateNow = new Date(year, currentDate.getMonth(), currentDate.getDate()).toLocaleDateString('en-CA', {timeZone: 'Asia/Bangkok'})
-    }
-    return dateNow
+const isEqual = (obj1, obj2) => {
+    return JSON.stringify(obj1) === JSON.stringify(obj2)
 }
 
 export default sync

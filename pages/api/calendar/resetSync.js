@@ -1,27 +1,23 @@
 import insertEvent from '../../../components/calendar/insertEvent'
 import fetchBot from '../../../components/fetch/fetchBot'
 import { storeFirebase } from '../../../components/fetch/fetchFirebase'
-import clearEvent from '../../../components/calendar/clearEvent'
+import clearAllEvent from '../../../components/calendar/clearAllEvent'
 import genChecksum from '../../../helper/genChecksum'
-import { getYear } from '../../../helper/date'
-
-const sleep = (ms) => {
-    console.log('sleep = ', ms, ' ms')
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 const resetSync = async (req, res) => {
-    const {year} = req.query
+    const {year, clearOnly} = req.query
     if (year) {
         const dataBOTs = await fetchBot(year)
         const checksum = genChecksum(dataBOTs)
-        await clearEvent(year)
+        await clearAllEvent(year)
+        if (clearOnly === 'true') {
+            console.log("clear calendar success!")
+            return res.status(200).json({msg: 'clear calendar success'})
+        }
         try {
             for (let i = 0; i < dataBOTs.length; i++) {
                 const event = dataBOTs[i]
-                console.log('insert = ', event.Date)
                 await insertEvent(event)
-                await sleep(2 * 1000)
             }
             await storeFirebase(`mainStorage/${year}`, {
                 hash: checksum,

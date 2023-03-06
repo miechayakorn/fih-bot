@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Switch, Text, useTheme } from '@nextui-org/react'
+import { Badge, Button, Container, Grid, Switch, Text, useTheme } from '@nextui-org/react'
 import { useTheme as useNextTheme } from 'next-themes'
 import CardDate from '../components/cardDate'
 import { useEffect, useState } from 'react'
@@ -89,27 +89,42 @@ export default function Index(result) {
             <Grid.Container justify="center">
                 <DisplayCalendarModal/>
             </Grid.Container>
-            <Grid.Container gap={1}>
-                {filter.map((data, index) => {
-                    return <Grid key={index}>
-                        <Button onClick={() => setFilterSelect(data.value)}
-                                flat={data.value === filterSelect ? false : true}
-                                rounded={true} key={index}>
-                            {data.title}
-                        </Button>
-                    </Grid>
-                })
-                }
-            </Grid.Container>
-            <Grid.Container gap={2} css={{mb: 50}}>
-                {
-                    data.map((data, index) => {
-                        return <Grid xs={12} sm={6} md={4} key={index}>
-                            <CardDate data={data} key={index}/>
+            {data ? <>
+                    <Grid.Container gap={1}>
+                        {filter.map((data, index) => {
+                            return <Grid key={index}>
+                                <Button onClick={() => setFilterSelect(data.value)}
+                                        flat={data.value === filterSelect ? false : true}
+                                        rounded={true} key={index}>
+                                    {data.title}
+                                </Button>
+                            </Grid>
+                        })
+                        }
+                    </Grid.Container>
+                    <Grid.Container gap={2}>
+                        <Grid>
+                            {filterSelect != 'all' ? 'เหลืออีก' : 'ทั้งหมด'} {data.length} วัน
                         </Grid>
-                    })
-                }
-            </Grid.Container>
+                    </Grid.Container>
+                    <Grid.Container gap={2} css={{mb: 50}}>
+                        {
+                            data.map((data, index) => {
+                                return <Grid xs={12} sm={6} md={4} key={index}>
+                                    <CardDate data={data} key={index}/>
+                                </Grid>
+                            })
+                        }
+                    </Grid.Container>
+                </>
+                :
+                <Grid.Container gap={1}>
+                    <Grid>
+                        <Badge enableShadow disableOutline size="lg">ไม่พบข้อมูล</Badge>
+                    </Grid>
+
+                </Grid.Container>
+            }
         </Container>
     )
 }

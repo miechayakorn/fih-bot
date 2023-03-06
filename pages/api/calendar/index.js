@@ -1,4 +1,4 @@
-import clearEvent from '../../../components/calendar/clearEvent'
+import clearAllEvent from '../../../components/calendar/clearAllEvent'
 import getEvent from '../../../components/calendar/getEvent'
 
 const Index = async (req, res) => {
@@ -11,7 +11,7 @@ const Index = async (req, res) => {
             res.status(500).json({status: 'failed', error: e})
         }
     } else if (req.method === 'DELETE') {
-        let responseGCal = await clearEvent()
+        let responseGCal = await clearAllEvent()
         if (responseGCal === 1) {
             res.status(200).json({msg: 'success'})
         } else {
